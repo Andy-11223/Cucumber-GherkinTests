@@ -33,6 +33,6 @@ When('I press the {string} button', async (buttonName: string) => {
 // 6. Then I should see the filled fields with "testonemore@123.com" and "12345678" and marked checkbox "Option 1"
 Then('I should see the filled fields with {string} and {string} and marked checkbox {string}', async (email: string, password: string, checkboxName: string) => {
   await expect(page.getByTestId('inputEmail1')).toHaveValue(email);
-  await expect(page.locator('#inputPassword2')).toHaveValue('Wrong');
+  await expect(page.locator('#inputPassword2')).toHaveValue(password);
   await expect(page.getByRole('radio', { name: checkboxName })).toBeChecked();
 });
