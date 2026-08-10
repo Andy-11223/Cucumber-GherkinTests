@@ -4,13 +4,24 @@ import { page } from "../support/hooks";
 
 const getIframe = () => page.locator('iframe[title="Kleep.ai"]').contentFrame();
 
+async function clickIframeRadio(label: string) {
+    await getIframe().getByRole('radio', { name: label }).click()
+}
+
+async function clickIframeSubmit(label: string) {
+    const submitButton = getIframe().getByRole('button', { name: label });
+    await submitButton.waitFor({ state: 'visible' })
+    await submitButton.click()
+
+}
+
 Given('I navigate to {string} and confirm country by clicing {string} button', async (URL: string, confirmLocationCountry: string) => {
     await page.goto(URL, { waitUntil: 'load' });
 
     const shopNowBtn = page.getByRole('button', { name: confirmLocationCountry })
 
     try {
-        await shopNowBtn.waitFor({ state: 'visible', timeout: 8000});
+        await shopNowBtn.waitFor({ state: 'visible', timeout: 8000 });
         await shopNowBtn.click();
     } catch (e) {
         console.log(`Country confirm button "${confirmLocationCountry}" did not appear, skipping.`);
@@ -18,42 +29,59 @@ Given('I navigate to {string} and confirm country by clicing {string} button', a
 });
 
 When('I click the {string} button and open the drawer iframe', async (drawerButton: string) => {
-    await page.getByRole('group', { name: drawerButton }).locator('#kleep-size-button').waitFor({ state: 'visible' })
-    await page.getByRole('group', { name: drawerButton }).locator('#kleep-size-button').click();
+    const sizeButton = page.getByRole('group', { name: drawerButton }).locator('#kleep-size-button')
+
+    await sizeButton.waitFor({ state: 'visible' });
+    await sizeButton.click();
 });
 
-When('I enter height {string} and {string} feet', async (heightFootValue1: string, heightFootValue2: string) => {
-    await getIframe().getByRole('textbox', { name: 'Height - ex: 5’' }).click();
-    await getIframe().getByRole('textbox', { name: 'Height - ex: 5’' }).fill(heightFootValue1);
-    await getIframe().getByRole('textbox', { name: 'Height - ex: 9"' }).click();
-    await getIframe().getByRole('textbox', { name: 'Height - ex: 9"' }).fill(heightFootValue2);
+When('I enter feet {string} and {string} inches', async (feet: string, inches: string) => {
+    const heightFeetField = getIframe().getByRole('textbox', { name: 'Height - ex: 5’' });
+    await heightFeetField.click();
+    await heightFeetField.fill(feet);
+    await expect(heightFeetField).toHaveValue(`${feet}'`);
+    await heightFeetField.blur();
+
+    const heightInchesField = getIframe().getByRole('textbox', { name: 'Height - ex: 9"' })
+    await heightInchesField.waitFor({ state: "visible" });
+    await heightInchesField.fill(inches);
+    await expect(heightInchesField).toHaveValue(`${inches}"`);
 })
 
-When('I enter my body weight {string} and age {string}', async (weightValue: string, ageValue: string) => {
-    await getIframe().getByRole('textbox', { name: 'ex: 154' }).click();
-    await getIframe().getByRole('textbox', { name: 'ex: 154' }).fill(weightValue);
-    await getIframe().getByRole('textbox', { name: 'ex: 30 years old' }).click();
-    await getIframe().getByRole('textbox', { name: 'ex: 30 years old' }).fill(ageValue);
+When('I enter my body weight {string} and age {string}', async (weight: string, age: string) => {
+    const weightField = getIframe().getByRole("textbox", { name: "ex: 154" });
+    await weightField.click();
+    await weightField.fill(weight);
+    await expect(weightField).toHaveValue(weight);
+    await weightField.blur();
+
+    const ageField = getIframe().getByRole("textbox", { name: "ex: 30 years old" });
+    await ageField.waitFor({ state: "visible" });
+    await ageField.click();
+    await ageField.fill(age);
+    await expect(ageField).toHaveValue(age);
 })
 
 When('I click {string} button', async (confirmButton: string) => {
-    await getIframe().getByRole('button', { name: confirmButton }).waitFor({ state: 'visible' });
-    await getIframe().getByRole('button', { name: confirmButton }).click();
+    await clickIframeSubmit(confirmButton);
 })
 
 When('I select {string} option as Hip Shape and Stomach Shape pages and click {string} button', async (shapeOption: string, confirmButton: string) => {
-    await getIframe().getByRole('radio', { name: shapeOption }).click();
-    await getIframe().getByRole('button', { name: confirmButton }).click();
-    await getIframe().getByRole('radio', { name: shapeOption }).click();
-    await getIframe().getByRole('button', { name: confirmButton }).click();
+    await clickIframeRadio(shapeOption);
+    await clickIframeSubmit(confirmButton);
+
+    await clickIframeRadio(shapeOption);
+    await clickIframeSubmit(confirmButton);
 })
 
 When('I select {string} and {string} in Chest page and click {string} button', async (bandSize: string, cupSize: string, submitButton: string) => {
     await getIframe().getByRole('button', { name: bandSize }).click();
     await getIframe().getByRole('button', { name: cupSize, exact: true }).click();
-    await getIframe().getByRole('button', { name: submitButton }).click();
+    await clickIframeSubmit(submitButton);
 });
 
 Then('I should see the recommended size {string}', async (recommendedSize: string) => {
-    await getIframe().getByText(recommendedSize)
+    const activeSize = getIframe().locator('.menu-item.active p');
+    await expect(activeSize).toBeVisible();
+    await expect(activeSize).toHaveText(recommendedSize);
 })
