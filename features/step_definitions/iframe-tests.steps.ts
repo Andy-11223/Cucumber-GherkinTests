@@ -6,6 +6,7 @@ const getIframe = () => page.locator('iframe[title="Kleep.ai"]').contentFrame();
 
 Given('I navigate to {string} and confirm country by clicing {string} button', async (URL: string, confirmLocationCountry: string) => {
     await page.goto(URL);
+    await page.getByRole('button', { name: confirmLocationCountry }).waitFor({state: 'visible'})
     await page.getByRole('button', { name: confirmLocationCountry }).click();
 });
 
@@ -16,13 +17,16 @@ When('I click the {string} button and open the drawer iframe', async (drawerButt
 
 When('I enter height {string} and {string} feet', async (heightFootValue1: string, heightFootValue2: string) => {
     await getIframe().getByRole('textbox', { name: 'Height - ex: 5’' }).click();
-    await getIframe().getByRole('textbox', { name: 'Height - ex: 5’' }).pressSequentially(heightFootValue1);
-    await getIframe().getByRole('textbox', { name: 'Height - ex: 9"' }).pressSequentially(heightFootValue2);
+    await getIframe().getByRole('textbox', { name: 'Height - ex: 5’' }).fill(heightFootValue1);
+    await getIframe().getByRole('textbox', { name: 'Height - ex: 9"' }).click();
+    await getIframe().getByRole('textbox', { name: 'Height - ex: 9"' }).fill(heightFootValue2);
 })
 
 When('I enter my body weight {string} and age {string}', async (weightValue: string, ageValue: string) => {
-    await getIframe().getByRole('textbox', { name: 'ex: 154' }).pressSequentially(weightValue);
-    await getIframe().getByRole('textbox', { name: 'ex: 30 years old' }).pressSequentially(ageValue);
+    await getIframe().getByRole('textbox', { name: 'ex: 154' }).click();
+    await getIframe().getByRole('textbox', { name: 'ex: 154' }).fill(weightValue);
+    await getIframe().getByRole('textbox', { name: 'ex: 30 years old' }).click();
+    await getIframe().getByRole('textbox', { name: 'ex: 30 years old' }).fill(ageValue);
 })
 
 When('I click {string} button', async (confirmButton: string) => {

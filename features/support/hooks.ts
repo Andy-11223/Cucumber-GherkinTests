@@ -1,5 +1,7 @@
-import { Before, After, BeforeAll, AfterAll, Status, IWorld } from '@cucumber/cucumber';
+import { Before, After, BeforeAll, AfterAll, Status, IWorld, setDefaultTimeout } from '@cucumber/cucumber';
 import { ChromiumBrowser, chromium, Page, BrowserContext } from '@playwright/test';
+
+setDefaultTimeout(20 * 1000)
 
 declare const process: {
   env?: {
@@ -21,7 +23,14 @@ AfterAll(async () => {
 });
 
 Before(async () => {
-  context = await browser.newContext();
+  context = await browser.newContext({
+
+  // Set geolocation to UK so the modal doesn't trigger
+    geolocation: { latitude: 51.5074, longitude: -0.1278 },
+    permissions: ['geolocation'],
+    locale: 'en-GB'
+  });
+
   page = await context.newPage();
 });
 
