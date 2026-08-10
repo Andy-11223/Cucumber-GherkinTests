@@ -1,7 +1,7 @@
 import { Before, After, BeforeAll, AfterAll, Status, IWorld, setDefaultTimeout } from '@cucumber/cucumber';
 import { ChromiumBrowser, chromium, Page, BrowserContext } from '@playwright/test';
 
-setDefaultTimeout(20 * 1000)
+setDefaultTimeout(30 * 1000)
 
 declare const process: {
   env?: {
