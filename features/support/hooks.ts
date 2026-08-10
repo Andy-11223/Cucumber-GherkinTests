@@ -1,20 +1,21 @@
 import { Before, After, BeforeAll, AfterAll, Status } from '@cucumber/cucumber';
 import { ChromiumBrowser, chromium, Page, BrowserContext } from '@playwright/test';
 
-declare const process: {
-  env: {
-    CI?: string;
-  };
-};
-
 let browser: ChromiumBrowser;
 let context: BrowserContext;
 export let page: Page;
 
 BeforeAll(async () => {
-  // Use CI environment variable to run headless in GitHub Actions, or headed locally
-  const isCI = process.env.CI === 'true';
-  browser = await chromium.launch({ headless: isCI }); 
+  const isCI =
+    (globalThis as typeof globalThis & {
+      process?: {
+        env?: {
+          CI?: string;
+        };
+      };
+    }).process?.env?.CI === 'true';
+
+  browser = await chromium.launch({ headless: isCI });
 });
 
 AfterAll(async () => {
@@ -22,16 +23,20 @@ AfterAll(async () => {
 });
 
 Before(async () => {
-  // Create an isolated context and page for each scenario
   context = await browser.newContext();
   page = await context.newPage();
 });
 
-After(async (scenario) => {
-  // Take screenshot on failure
+// Notice we use a standard 'function' here so we have access to 'this.attach'
+After(async function (scenario) {
   if (scenario.result?.status === Status.FAILED) {
-    const img = await page.screenshot({ path: `screenshots/${scenario.pickle.name}.png` });
+    // 1. Take the screenshot as a Buffer (no path needed)
+    const imgBuffer = await page.screenshot();
+
+    // 2. Attach it directly to the Cucumber report
+    this.attach(imgBuffer, 'image/png');
   }
+
   await page.close();
   await context.close();
 });
