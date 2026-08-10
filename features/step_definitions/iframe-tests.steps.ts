@@ -10,6 +10,7 @@ Given('I navigate to {string} and confirm country by clicing {string} button', a
 });
 
 When('I click the {string} button and open the drawer iframe', async (drawerButton: string) => {
+    await page.getByRole('group', { name: drawerButton }).locator('#kleep-size-button').waitFor({ state: 'visible' })
     await page.getByRole('group', { name: drawerButton }).locator('#kleep-size-button').click();
 });
 
@@ -25,7 +26,7 @@ When('I enter my body weight {string} and age {string}', async (weightValue: str
 })
 
 When('I click {string} button', async (confirmButton: string) => {
-    await getIframe().getByRole('button', { name: confirmButton }).waitFor({state: 'visible'});
+    await getIframe().getByRole('button', { name: confirmButton }).waitFor({ state: 'visible' });
     await getIframe().getByRole('button', { name: confirmButton }).click();
 })
 
