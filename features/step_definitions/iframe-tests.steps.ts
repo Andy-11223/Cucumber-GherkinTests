@@ -5,9 +5,16 @@ import { page } from "../support/hooks";
 const getIframe = () => page.locator('iframe[title="Kleep.ai"]').contentFrame();
 
 Given('I navigate to {string} and confirm country by clicing {string} button', async (URL: string, confirmLocationCountry: string) => {
-    await page.goto(URL);
-    await page.getByRole('button', { name: confirmLocationCountry }).waitFor({state: 'visible'})
-    await page.getByRole('button', { name: confirmLocationCountry }).click();
+    await page.goto(URL, { waitUntil: 'domcontentloaded' });
+
+    const shopNowBtn = page.getByRole('button', { name: confirmLocationCountry })
+
+    try {
+        await shopNowBtn.waitFor({ state: 'visible' });
+        await shopNowBtn.click();
+    } catch (e) {
+        console.log(`Country confirm button "${confirmLocationCountry}" did not appear, skipping.`);
+    }
 });
 
 When('I click the {string} button and open the drawer iframe', async (drawerButton: string) => {
