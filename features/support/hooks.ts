@@ -1,20 +1,18 @@
-import { Before, After, BeforeAll, AfterAll, Status } from '@cucumber/cucumber';
+import { Before, After, BeforeAll, AfterAll, Status, IWorld } from '@cucumber/cucumber';
 import { ChromiumBrowser, chromium, Page, BrowserContext } from '@playwright/test';
+
+declare const process: {
+  env?: {
+    CI?: string;
+  };
+};
 
 let browser: ChromiumBrowser;
 let context: BrowserContext;
 export let page: Page;
 
 BeforeAll(async () => {
-  const isCI =
-    (globalThis as typeof globalThis & {
-      process?: {
-        env?: {
-          CI?: string;
-        };
-      };
-    }).process?.env?.CI === 'true';
-
+  const isCI = process?.env?.CI === 'true';
   browser = await chromium.launch({ headless: isCI });
 });
 
@@ -27,14 +25,13 @@ Before(async () => {
   page = await context.newPage();
 });
 
-// Notice we use a standard 'function' here so we have access to 'this.attach'
-After(async function (scenario) {
+After(async function (this: IWorld, scenario) {
   if (scenario.result?.status === Status.FAILED) {
-    // 1. Take the screenshot as a Buffer (no path needed)
-    const imgBuffer = await page.screenshot();
+    // 1. Capture screenshot as buffer
+    const imgBuffer = await page.screenshot({ fullPage: true });
 
-    // 2. Attach it directly to the Cucumber report
-    this.attach(imgBuffer, 'image/png');
+    // 2. AWAIT attachment to Cucumber World
+    await this.attach(imgBuffer, 'image/png');
   }
 
   await page.close();
