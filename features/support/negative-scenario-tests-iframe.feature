@@ -1,13 +1,15 @@
-@negative @iframe
+@negative @iframe 
 Feature: Negative iframe scenario support
 
   Background:
     Given I navigate directly to the drawer "https://drawer.kleep.ai/?domain=www.victoriabeckham.com&product_id=15027721240952&customer_id=&lang=en&countryCode=GB&variantId=55558132662648&category=clothing" 
 
+  @negative @iframe @screenshot
   Scenario: Continue button stays disabled when all measurements are invalid
     When I enter feet "0" and "0" inches
     And I enter my body weight "0" and age "0"
     Then the "Continue" button should be disabled
+#    And I should see the validation messages
 
   Scenario Outline: Validation message is shown for a single invalid field
     When I enter feet "<feet>" and "<inches>" inches

@@ -1,7 +1,8 @@
 import { Given, When, Then } from "@cucumber/cucumber";
 import { expect } from "@playwright/test";
 import { page } from "../support/hooks";
-import { getWidgetRoot, setWidgetRoot } from "../support/widget-root";
+import { getWidgetRoot, setCurrentBrand, setWidgetRoot } from "../support/widget-root";
+import { extractBrandFromDrawerUrl } from "../support/url-helpers";
 
 async function clickIframeRadio(label: string) {
     await getWidgetRoot().getByRole('radio', { name: label }).click()
@@ -39,6 +40,7 @@ Given('I navigate directly to the drawer {string}', async (url: string) => {
     await page.goto(url, {waitUntil: 'load'});
 
     setWidgetRoot(page);
+    setCurrentBrand(extractBrandFromDrawerUrl(url));
 })
 
 When('I enter feet {string} and {string} inches', async (feet: string, inches: string) => {
@@ -68,6 +70,7 @@ When('I enter my body weight {string} and age {string}', async (weight: string, 
     await ageField.click();
     await ageField.fill(age);
     await expect(ageField).toHaveValue(age);
+    await ageField.blur();
 })
 
 Then("the {string} button should be disabled", async (buttonLabel: string) => {

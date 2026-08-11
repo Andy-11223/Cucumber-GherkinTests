@@ -1,6 +1,9 @@
 import { Before, After, BeforeAll, AfterAll, Status, IWorld, setDefaultTimeout } from '@cucumber/cucumber';
 import { ChromiumBrowser, chromium, Page, BrowserContext } from '@playwright/test';
-import { resetWidgetRoot } from './widget-root';
+import { resetWidgetRoot, getCurrentBrand, getWidgetRoot } from './widget-root';
+import * as fs from 'fs';
+import * as path from 'path';
+
 
 setDefaultTimeout(30 * 1000)
 
@@ -26,7 +29,7 @@ AfterAll(async () => {
 Before(async () => {
   context = await browser.newContext({
 
-  // Set geolocation to UK so the modal doesn't trigger
+    // Set geolocation to UK so the modal doesn't trigger
     geolocation: { latitude: 51.5074, longitude: -0.1278 },
     permissions: ['geolocation'],
     locale: 'en-GB'
@@ -49,3 +52,27 @@ After(async function (this: IWorld, scenario) {
   await page.close();
   await context.close();
 });
+
+After({ tags: "@screenshot" }, async function (scenario) {
+  const screenshotDir = path.resolve(__dirname, '../../screenshots');
+  if (!fs.existsSync(screenshotDir)) {
+    fs.mkdirSync(screenshotDir, { recursive: true });
+  }
+
+  const brand = getCurrentBrand();
+  const safeName = scenario.pickle.name.replace(/[^a-z0-9]/gi, "_").toLowerCase();
+  const filePath = path.join(screenshotDir, `${brand}-${safeName}.png`);
+
+  const root = getWidgetRoot();
+  const drawer = root.locator('.drawer-popup');
+
+  try {
+    await drawer.waitFor({ state: 'visible', timeout: 3000 });
+    await drawer.screenshot({ path: filePath });
+    console.log(`Drawer screenshot saved: ${filePath}`);
+  } catch (e) {
+    console.log('Drawer element not found/visible — falling back to full page screenshot.');
+    await page.screenshot({ path: filePath, fullPage: true });
+  }
+
+})
