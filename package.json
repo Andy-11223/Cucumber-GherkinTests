@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "generate:brands": "tsx scripts/generate-brand-feature.ts",
+    "sort:brands": "tsx scripts/sort-brands.ts",
     "test": "cucumber-js"
   },
   "keywords": [],
@@ -14,9 +16,13 @@
     "@cucumber/cucumber": "^12.9.0",
     "@playwright/test": "^1.62.1",
     "@types/node": "^26.2.0",
+    "csv-parse": "^7.0.2",
     "ts-node": "^10.9.2",
     "tsx": "^4.23.11",
     "typescript": "^7.0.2"
+  },
+  "devDependcies": {
+    "csv-parse": "^5.x"
   },
   "dependencies": {
     "fs": "^0.0.1-security"

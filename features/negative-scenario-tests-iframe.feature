@@ -9,7 +9,6 @@ Feature: Negative iframe scenario support
     When I enter feet "0" and "0" inches
     And I enter my body weight "0" and age "0"
     Then the "Continue" button should be disabled
-#    And I should see the validation messages
 
   Scenario Outline: Validation message is shown for a single invalid field
     When I enter feet "<feet>" and "<inches>" inches
