@@ -1,5 +1,6 @@
 import { Before, After, BeforeAll, AfterAll, Status, IWorld, setDefaultTimeout } from '@cucumber/cucumber';
 import { ChromiumBrowser, chromium, Page, BrowserContext } from '@playwright/test';
+import { resetWidgetRoot } from './widget-root';
 
 setDefaultTimeout(30 * 1000)
 
@@ -30,6 +31,8 @@ Before(async () => {
     permissions: ['geolocation'],
     locale: 'en-GB'
   });
+
+  resetWidgetRoot();
 
   page = await context.newPage();
 });
