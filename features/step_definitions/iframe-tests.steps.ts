@@ -17,14 +17,14 @@ async function clickIframeSubmit(label: string) {
 }
 
 async function clickConsentCheckbox(consentContainer: Locator) {
-    // Strategy 1: MUI checkbox (Bonpoint, KENZO, Simone Pérèle)
+    // Strategy 1: MUI checkbox 
     const muiButton = consentContainer.locator('.MuiButtonBase-root.MuiCheckbox-root').first();
     if (await muiButton.count() > 0) {
         await muiButton.click();
         return;
     }
 
-    // Strategy 2: native <label for="..."> wrapping the input (Givenchy)
+    // Strategy 2: native <label for="..."> wrapping the input 
     const label = consentContainer.locator('label').first();
     if (await label.count() > 0) {
         await label.click();
@@ -64,6 +64,35 @@ async function dismissConsentPageIfPresent(root: WidgetRoot) {
     });
 }
 
+async function selectGenderIfPresent(root: WidgetRoot, gender?: 'male' | 'female') {
+    const genderBlock = root.locator('.gender-buttons');
+
+    const isPresent = await genderBlock
+        .waitFor({ state: 'visible', timeout: 4000 })
+        .then(() => true)
+        .catch(() => false);
+
+    if (!isPresent) {
+        return; // no gender page for this brand — proceed normally
+    }
+
+    const genderButtons = genderBlock.getByRole('button');
+
+    if (!gender) {
+        // No specific gender requested — just pick the first available option
+        console.log('Gender selection page detected — choosing default (first option).');
+        await genderButtons.first().waitFor({ state: 'visible' });
+        await genderButtons.first().click();
+        return;
+    }
+
+    console.log(`Gender selection page detected — choosing "${gender}".`);
+    const label = gender === 'male' ? 'Man' : 'Woman';
+    const genderButton = genderBlock.getByRole('button', { name: label, exact: true });
+    await genderButton.waitFor({ state: 'visible' });
+    await genderButton.click();
+}
+
 Given('I navigate to {string} and confirm country by clicking {string} button', async (URL: string, confirmLocationCountry: string) => {
     await page.goto(URL, { waitUntil: 'load' });
 
@@ -94,7 +123,19 @@ Given('I navigate directly to the drawer {string}', async (url: string) => {
     setCurrentBrand(extractBrandFromDrawerUrl(url));
 
     await dismissConsentPageIfPresent(getWidgetRoot());
+    await selectGenderIfPresent(getWidgetRoot());
 })
+
+// Explicit — used by scenarios that specifically need a certain gender
+//When('I select {string} gender', async (gender: string) => {
+//  const normalized = gender.toLowerCase();
+//
+//  if (normalized !== 'male' && normalized !== 'female') {
+//    throw new Error(`Gender must be "male" or "female", got "${gender}"`);
+//  }
+//
+//  await selectGenderIfPresent(getWidgetRoot(), normalized as 'male' | 'female');
+//});
 
 When('I enter feet {string} and {string} inches', async (feet: string, inches: string) => {
     const root = getWidgetRoot();
