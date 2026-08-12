@@ -78,9 +78,7 @@ After({ tags: "@screenshot" }, async function (scenario) {
   try {
     await drawer.waitFor({ state: 'visible', timeout: 3000 });
     await drawer.screenshot({ path: filePath });
-    console.log(`Drawer screenshot saved: ${filePath}`);
   } catch (e) {
-    console.log('Drawer element not found/visible — falling back to full page screenshot.');
     await page.screenshot({ path: filePath, fullPage: true });
   }
 })
