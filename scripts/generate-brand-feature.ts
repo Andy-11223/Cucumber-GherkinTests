@@ -95,6 +95,7 @@ Feature: Negative sizing flow across brands (env: ${targetEnv})
   #   npm run generate:brands -- --env=staging
   #   npm run generate:brands -- --env=prod
   #   npx cucumber-js --tags "@generated"  --parallel 4
+  #   VIEWPORT=mobile npx cucumber-js --tags "@generated"  --parallel 4
 ${incompleteComment}
   Scenario Outline: Continue button stays disabled when all measurements are invalid
     Given I navigate directly to the drawer "<url>"
