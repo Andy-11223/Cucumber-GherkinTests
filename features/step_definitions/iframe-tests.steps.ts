@@ -126,7 +126,7 @@ Given('I navigate directly to the drawer {string}', async (url: string) => {
     await selectGenderIfPresent(getWidgetRoot());
 })
 
-// Explicit — used by scenarios that specifically need a certain gender
+// Explicit — used by scenarios that specifically need a certain gender  - will use in next scenarious
 //When('I select {string} gender', async (gender: string) => {
 //  const normalized = gender.toLowerCase();
 //
